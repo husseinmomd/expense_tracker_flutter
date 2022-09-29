@@ -2,11 +2,32 @@ import 'package:flutter/material.dart';
 
 // ignore_for_file: prefer_const_constructors
 // ignore_for_file: sort_child_properties_last
-class NewTransaction extends StatelessWidget {
-  final VoidCallback addTx;
-  NewTransaction({required this.addTx});
+class NewTransaction extends StatefulWidget {
+  final Function(String, double) addTx;
+  NewTransaction(this.addTx);
+
+  @override
+  State<NewTransaction> createState() => _NewTransactionState();
+}
+
+class _NewTransactionState extends State<NewTransaction> {
+  void submitDate() {
+    final enteredTitle = titleControler.text;
+    final enteredAmount = double.parse(amountControler.text);
+
+    if (enteredTitle.isEmpty || enteredAmount <= 0) return;
+
+    widget.addTx(
+      enteredTitle,
+      enteredAmount,
+    );
+
+    // close modal after adding data
+    Navigator.of(context).pop();
+  }
 
   final titleControler = TextEditingController();
+
   final amountControler = TextEditingController();
 
   @override
@@ -19,18 +40,16 @@ class NewTransaction extends StatelessWidget {
           TextField(
             decoration: InputDecoration(labelText: 'Title'),
             controller: titleControler,
+            onSubmitted: (_) => submitDate(),
           ),
           TextField(
             decoration: InputDecoration(labelText: 'Amount'),
             controller: amountControler,
+            keyboardType: TextInputType.number,
+            onSubmitted: (_) => submitDate(),
           ),
           TextButton(
-            onPressed: () {
-              addTx(
-                titleControler,
-                double.parse(amountControler),
-              );
-            },
+            onPressed: submitDate,
             child: Text('Add Transaction'),
             style: TextButton.styleFrom(primary: Colors.purple),
           ),
